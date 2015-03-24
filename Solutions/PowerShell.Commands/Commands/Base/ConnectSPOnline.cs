@@ -59,24 +59,36 @@ namespace OfficeDevPnP.PowerShell.Commands.Base
 
         protected override void ProcessRecord()
         {
-            PSCredential creds = null;
-            if (Credentials != null)
+            if (SPOnlineConnection.CurrentConnection != null)
             {
-                creds = Credentials.Credential;
-            }
-          
-            if (ParameterSetName == "Token")
-            {
-                SPOnlineConnection.CurrentConnection = SPOnlineConnectionHelper.InstantiateSPOnlineConnection(new Uri(Url), Realm, AppId, AppSecret, Host, MinimalHealthScore, RetryCount, RetryWait, RequestTimeout, SkipTenantAdminCheck);
+                if (string.Equals(SPOnlineConnection.CurrentConnection.Url, Url, StringComparison.OrdinalIgnoreCase))
+                {
+
+                }
             }
             else
             {
-                if (!CurrentCredentials && creds == null)
+                PSCredential creds = null;
+                if (Credentials != null)
                 {
-                    creds = Host.UI.PromptForCredential(Properties.Resources.EnterYourCredentials, "", "", "");
+                    creds = Credentials.Credential;
                 }
-                SPOnlineConnection.CurrentConnection = SPOnlineConnectionHelper.InstantiateSPOnlineConnection(new Uri(Url), creds, Host, CurrentCredentials, MinimalHealthScore, RetryCount, RetryWait, RequestTimeout, SkipTenantAdminCheck);
+
+                if (ParameterSetName == "Token")
+                {
+                    SPOnlineConnection.CurrentConnection = SPOnlineConnectionHelper.InstantiateSPOnlineConnection(new Uri(Url), Realm, AppId, AppSecret, Host, MinimalHealthScore, RetryCount, RetryWait, RequestTimeout, SkipTenantAdminCheck);
+                }
+                else
+                {
+                    if (!CurrentCredentials && creds == null)
+                    {
+                        creds = Host.UI.PromptForCredential(Properties.Resources.EnterYourCredentials, "", "", "");
+                    }
+                    SPOnlineConnection.CurrentConnection = SPOnlineConnectionHelper.InstantiateSPOnlineConnection(new Uri(Url), creds, Host, CurrentCredentials, MinimalHealthScore, RetryCount, RetryWait, RequestTimeout, SkipTenantAdminCheck);
+                }
             }
+
+            
         }
     }
 }
