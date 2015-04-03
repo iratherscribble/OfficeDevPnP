@@ -47,6 +47,28 @@ namespace OfficeDevPnP.Core.Tests.Framework.ProvisioningTemplates
 
         [TestMethod]
         [TestCategory(TEST_CATEGORY)]
+        public void CanSerializeDomainObjectToXMLString1()
+        {
+            XDocument _doc = XDocument.Load(this._provisioningTemplatePath1);
+            var _pt = XMLSerializer.Deserialize<SharePointProvisioningTemplate>(_doc).ToProvisioningTemplate();
+            var _xmlString = _pt.ToXmlString();
+
+            Assert.IsTrue(!String.IsNullOrEmpty(_xmlString));
+        }
+
+        [TestMethod]
+        [TestCategory(TEST_CATEGORY)]
+        public void CanSerializeDomainObjectToXMLStream1()
+        {
+            XDocument _doc = XDocument.Load(this._provisioningTemplatePath1);
+            var _pt = XMLSerializer.Deserialize<SharePointProvisioningTemplate>(_doc).ToProvisioningTemplate();
+            var _xmlStream = _pt.ToXmlStream();
+
+            Assert.IsNotNull(_xmlStream);
+        }
+
+        [TestMethod]
+        [TestCategory(TEST_CATEGORY)]
         public void CanDeserializeXMLToDomainObject2()
         {
             this.GetProvisioningTemplate();
@@ -234,6 +256,24 @@ namespace OfficeDevPnP.Core.Tests.Framework.ProvisioningTemplates
             }
         }
 
+        #region Comparison Tests
+
+        [TestMethod]
+        [TestCategory(TEST_CATEGORY)]
+        public void AreTemplatesEqual()
+        {
+            XDocument _doc1 = XDocument.Load(this._provisioningTemplatePath1);
+            var _pt1 = XMLSerializer.Deserialize<SharePointProvisioningTemplate>(_doc1).ToProvisioningTemplate();
+
+            XDocument _doc2 = XDocument.Load(this._provisioningTemplatePath2);
+            var _pt2 = XMLSerializer.Deserialize<SharePointProvisioningTemplate>(_doc2).ToProvisioningTemplate();
+
+            Assert.IsFalse(_pt1.Equals(_pt2));
+            Assert.IsTrue(_pt1.Equals(_pt1));
+        }
+
+        #endregion
+
         #region Test Support
         /// <summary>
         /// Test Support to return ProvisionTemplate 
@@ -255,6 +295,7 @@ namespace OfficeDevPnP.Core.Tests.Framework.ProvisioningTemplates
                 Assert.IsTrue(template.Lists.Any());
             }
         }
+
         #endregion
     }
 }

@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OfficeDevPnP.Core.Framework.Provisioning.Model
 {
     /// <summary>
     /// Domain Object that specifies the properties of the new list.
     /// </summary>
-    public class ListInstance
+    public class ListInstance : IEquatable<ListInstance>
     {
         #region Constructors
 
         public ListInstance() { }
 
         public ListInstance(IEnumerable<ContentTypeBinding> contentTypeBindings,
-            IEnumerable<View> views)
+            IEnumerable<View> views, IEnumerable<Field> fields, IEnumerable<FieldRef> fieldRefs   )
         {
             if (contentTypeBindings != null)
             {
@@ -27,6 +24,16 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Model
             {
                 this.Views.AddRange(views);
             }
+
+            if (fields != null)
+            {
+                this.Fields.AddRange(fields);
+            }
+
+            if (fieldRefs != null)
+            {
+                this._fieldRefs.AddRange(fieldRefs);
+            }
         }
 
         #endregion
@@ -34,6 +41,8 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Model
         #region Private Members
         private List<ContentTypeBinding> _ctBindings = new List<ContentTypeBinding>();
         private List<View> _views = new List<View>();
+        private List<Field> _fields = new List<Field>(); 
+        private List<FieldRef> _fieldRefs = new List<FieldRef>(); 
         #endregion
 
         #region Properties
@@ -115,7 +124,64 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Model
             get { return this._views; }
             private set { this._views = value; }
         }
+
+        public List<Field> Fields
+        {
+            get { return this._fields; }
+            private set { this._fields = value; }
+        }
+
+        public List<FieldRef> FieldRefs
+        {
+            get { return this._fieldRefs; }
+            private set { this._fieldRefs = value; }
+        }
         #endregion
 
+        #region Comparison code
+
+        public override int GetHashCode()
+        {
+            return (String.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}",
+                this.ContentTypesEnabled,
+                this.Description,
+                this.DocumentTemplate,
+                this.EnableVersioning,
+                this.Hidden,
+                this.MaxVersionLimit,
+                this.MinorVersionLimit,
+                this.OnQuickLaunch,
+                this.RemoveDefaultContentType,
+                this.TemplateType,
+                this.Title,
+                this.Url).GetHashCode());
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is ListInstance))
+            {
+                return (false);
+            }
+            return (Equals((ListInstance)obj));
+        }
+
+        public bool Equals(ListInstance other)
+        {
+            return (this.ContentTypesEnabled == other.ContentTypesEnabled &&
+                this.Description == other.Description &&
+                this.DocumentTemplate == other.DocumentTemplate &&
+                this.EnableVersioning == other.EnableVersioning &&
+                this.Hidden == other.Hidden &&
+                this.MaxVersionLimit == other.MaxVersionLimit &&
+                this.MinorVersionLimit == other.MinorVersionLimit &&
+                this.OnQuickLaunch == other.OnQuickLaunch &&
+                this.RemoveDefaultContentType == other.RemoveDefaultContentType &&
+                this.TemplateType == other.TemplateType &&
+                this.Title == other.Title &&
+                this.Url == other.Url);
+        }
+
+        #endregion
     }
 }

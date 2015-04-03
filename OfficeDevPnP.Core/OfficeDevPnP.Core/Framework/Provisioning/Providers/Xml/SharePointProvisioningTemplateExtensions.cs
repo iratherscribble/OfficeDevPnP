@@ -1,21 +1,19 @@
-﻿using OfficeDevPnP.Core.Utilities;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Resources;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
-using Model = OfficeDevPnP.Core.Framework.Provisioning.Model;
+using System.Xml.Serialization;
+using OfficeDevPnP.Core.Framework.Provisioning.Model;
+using OfficeDevPnP.Core.Utilities;
 
 namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
 {
     public static partial class SharePointProvisioningTemplateExtensions
     {
-        public static SharePointProvisioningTemplate ToXml(this Model.ProvisioningTemplate template)
+        public static SharePointProvisioningTemplate ToXml(this ProvisioningTemplate template)
         {
             if (template == null)
             {
@@ -26,11 +24,11 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
 
             // Translate basic properties
             result.ID = template.ID;
-            result.Version = template.Version.ToString("###0.0", new System.Globalization.CultureInfo("en-US"));
+            result.Version = template.Version.ToString("###0.0", new CultureInfo("en-US"));
             result.SitePolicy = template.SitePolicy;
 
             // Translate PropertyBagEntries, if any
-            if (template.PropertyBagEntries != null)
+            if (template.PropertyBagEntries != null && template.PropertyBagEntries.Count > 0)
             {
                 result.PropertyBagEntries =
                     (from bag in template.PropertyBagEntries
@@ -40,13 +38,17 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                          Value = bag.Value,
                      }).ToArray();
             }
+            else
+            {
+                result.PropertyBagEntries = null;
+            }
 
             // Translate Security configuration, if any
             if (template.Security != null)
             {
                 result.Security = new SharePointProvisioningTemplateSecurity();
 
-                if (template.Security.AdditionalAdministrators != null)
+                if (template.Security.AdditionalAdministrators != null && template.Security.AdditionalAdministrators.Count > 0)
                 {
                     result.Security.AdditionalAdministrators =
                         (from user in template.Security.AdditionalAdministrators
@@ -55,7 +57,12 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                              Name = user.Name,
                          }).ToArray();
                 }
-                if (template.Security.AdditionalOwners != null)
+                else
+                {
+                    result.Security.AdditionalAdministrators = null;
+                }
+
+                if (template.Security.AdditionalOwners != null && template.Security.AdditionalOwners.Count > 0)
                 {
                     result.Security.AdditionalOwners =
                         (from user in template.Security.AdditionalOwners
@@ -64,7 +71,12 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                              Name = user.Name,
                          }).ToArray();
                 }
-                if (template.Security.AdditionalMembers != null)
+                else
+                {
+                    result.Security.AdditionalOwners = null;
+                }
+
+                if (template.Security.AdditionalMembers != null && template.Security.AdditionalMembers.Count > 0)
                 {
                     result.Security.AdditionalMembers =
                         (from user in template.Security.AdditionalMembers
@@ -73,7 +85,12 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                              Name = user.Name,
                          }).ToArray();
                 }
-                if (template.Security.AdditionalVisitors != null)
+                else
+                {
+                    result.Security.AdditionalMembers = null;
+                }
+
+                if (template.Security.AdditionalVisitors != null && template.Security.AdditionalVisitors.Count > 0)
                 {
                     result.Security.AdditionalVisitors =
                         (from user in template.Security.AdditionalVisitors
@@ -82,10 +99,14 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                              Name = user.Name,
                          }).ToArray();
                 }
+                else
+                {
+                    result.Security.AdditionalVisitors = null;
+                }
             }
 
             // Translate Site Columns (Fields), if any
-            if (template.SiteFields != null)
+            if (template.SiteFields != null && template.SiteFields.Count > 0)
             {
                 result.SiteFields = new SharePointProvisioningTemplateSiteFields
                 {
@@ -94,9 +115,13 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                          select field.SchemaXml.ToXmlElement()).ToArray(),
                 };
             }
+            else
+            {
+                result.SiteFields = null;
+            }
 
             // Translate ContentTypes, if any
-            if (template.ContentTypes != null)
+            if (template.ContentTypes != null && template.ContentTypes.Count > 0)
             {
                 result.ContentTypes = new SharePointProvisioningTemplateContentTypes
                 {
@@ -105,9 +130,13 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                          select contentType.SchemaXml.ToXmlElement()).ToArray(),
                 };
             }
+            else
+            {
+                result.ContentTypes = null;
+            }
 
             // Translate Lists Instances, if any
-            if (template.Lists != null)
+            if (template.Lists != null && template.Lists.Count > 0)
             {
                 result.Lists =
                     (from list in template.Lists
@@ -139,7 +168,24 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                                 (from view in list.Views
                                  select view.SchemaXml.ToXmlElement()).ToArray(),
                          } : null,
+                         Fields = list.Fields.Count > 0 ?
+                         new ListInstanceFields
+                         {
+                             Any =
+                             (from field in list.Fields
+                              select field.SchemaXml.ToXmlElement()).ToArray(),
+                         } : null,
+                         FieldRefs = list.FieldRefs.Count > 0 ?
+                         (from fieldRef in list.FieldRefs
+                          select new FieldRef
+                          {
+                              ID = fieldRef.ID.ToString(),
+                          }).ToArray() : null,
                      }).ToArray();
+            }
+            else
+            {
+                result.Lists = null;
             }
 
             // Translate Features, if any
@@ -147,7 +193,10 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
             {
                 result.Features = new SharePointProvisioningTemplateFeatures();
 
-                if (template.Features.SiteFeatures != null)
+                // TODO: This nullability check could be useless, because
+                // the SiteFeatures property is initialized in the Features
+                // constructor
+                if (template.Features.SiteFeatures != null && template.Features.SiteFeatures.Count > 0)
                 {
                     result.Features.SiteFeatures =
                         (from feature in template.Features.SiteFeatures
@@ -157,7 +206,15 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                              Deactivate = feature.Deactivate,
                          }).ToArray();
                 }
-                if (template.Features.WebFeatures != null)
+                else
+                {
+                    result.Features.SiteFeatures = null;
+                }
+
+                // TODO: This nullability check could be useless, because
+                // the WebFeatures property is initialized in the Features
+                // constructor
+                if (template.Features.WebFeatures != null && template.Features.WebFeatures.Count > 0)
                 {
                     result.Features.WebFeatures =
                         (from feature in template.Features.WebFeatures
@@ -167,6 +224,10 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                              Deactivate = feature.Deactivate,
                          }).ToArray();
                 }
+                else
+                {
+                    result.Features.WebFeatures = null;
+                }
             }
 
             // Translate CustomActions, if any
@@ -174,7 +235,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
             {
                 result.CustomActions = new SharePointProvisioningTemplateCustomActions();
 
-                if (template.CustomActions.SiteCustomActions != null)
+                if (template.CustomActions.SiteCustomActions != null && template.CustomActions.SiteCustomActions.Count > 0)
                 {
                     result.CustomActions.SiteCustomActions =
                         (from customAction in template.CustomActions.SiteCustomActions
@@ -196,7 +257,12 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                              Url = customAction.Url,
                          }).ToArray();
                 }
-                if (template.CustomActions.WebCustomActions != null)
+                else
+                {
+                    result.CustomActions.SiteCustomActions = null;
+                }
+
+                if (template.CustomActions.WebCustomActions != null && template.CustomActions.WebCustomActions.Count > 0)
                 {
                     result.CustomActions.WebCustomActions =
                         (from customAction in template.CustomActions.WebCustomActions
@@ -218,10 +284,14 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                              Url = customAction.Url,
                          }).ToArray();
                 }
+                else
+                {
+                    result.CustomActions.WebCustomActions = null;
+                }
             }
 
             // Translate Files, if any
-            if (template.Files != null)
+            if (template.Files != null && template.Files.Count > 0)
             {
                 result.Files =
                     (from file in template.Files
@@ -231,6 +301,10 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                          Src = file.Src,
                          Folder = file.Folder,
                      }).ToArray();
+            }
+            else
+            {
+                result.Files = null;
             }
 
             // Translate ComposedLook, if any
@@ -251,7 +325,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
             }
 
             // Translate Providers, if any
-            if (template.Providers != null)
+            if (template.Providers != null && template.Providers.Count > 0)
             {
                 result.Providers =
                     (from provider in template.Providers
@@ -263,11 +337,15 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                          Type = provider.Type,
                      }).ToArray();
             }
+            else
+            {
+                result.Providers = null;
+            }
 
             return (result);
         }
 
-        public static Model.ProvisioningTemplate ToProvisioningTemplate(this SharePointProvisioningTemplate template)
+        public static ProvisioningTemplate ToProvisioningTemplate(this SharePointProvisioningTemplate template)
         {
             if (template == null)
             {
@@ -281,11 +359,11 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                 throw new ApplicationException("The provided template is not valid!");
             }
 
-            Model.ProvisioningTemplate result = new Model.ProvisioningTemplate();
+            ProvisioningTemplate result = new ProvisioningTemplate();
 
             // Translate basic properties
             result.ID = template.ID;
-            result.Version = Double.Parse(!String.IsNullOrEmpty(template.Version) ? template.Version : "0", new System.Globalization.CultureInfo("en-US"));
+            result.Version = Double.Parse(!String.IsNullOrEmpty(template.Version) ? template.Version : "0", new CultureInfo("en-US"));
             result.SitePolicy = template.SitePolicy;
 
             // Translate PropertyBagEntries, if any
@@ -346,7 +424,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
             {
                 result.SiteFields.AddRange(
                     from field in template.SiteFields.Any
-                    select new Model.Field
+                    select new Field
                     {
                         SchemaXml = field.OuterXml,
                     });
@@ -357,7 +435,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
             {
                 result.ContentTypes.AddRange(
                     from contentType in template.ContentTypes.Any
-                    select new Model.ContentType
+                    select new ContentType
                     {
                         SchemaXml = contentType.OuterXml,
                     });
@@ -378,10 +456,23 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                                  }) : null),
                         (list.Views != null ?
                                 (from view in list.Views.Any
-                                 select new Model.View
+                                 select new View
                                  {
                                      SchemaXml = view.OuterXml,
-                                 }) : null))
+                                 }) : null),
+                        (list.Fields != null ?
+                                (from field in list.Fields.Any
+                                 select new Field
+                                 {
+                                     SchemaXml = field.OuterXml,
+                                 }) : null),
+                        (list.FieldRefs != null ?
+                                 (from fieldRef in list.FieldRefs
+                                  select new Model.FieldRef
+                                  {
+                                      ID = Guid.Parse(fieldRef.ID)
+                                  }) : null)
+                         )
                     {
                         ContentTypesEnabled = list.ContentTypesEnabled,
                         Description = list.Description,
@@ -401,7 +492,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
             // Translate Features, if any
             if (template.Features != null)
             {
-                if (result.Features.SiteFeatures != null)
+                if (result.Features.SiteFeatures != null && template.Features.SiteFeatures != null)
                 {
                     result.Features.SiteFeatures.AddRange(
                         from feature in template.Features.SiteFeatures
@@ -411,7 +502,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                             Deactivate = feature.Deactivate,
                         });
                 }
-                if (result.Features.WebFeatures != null)
+                if (result.Features.WebFeatures != null && template.Features.WebFeatures != null)
                 {
                     result.Features.WebFeatures.AddRange(
                         from feature in template.Features.WebFeatures
@@ -426,7 +517,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
             // Translate CustomActions, if any
             if (template.CustomActions != null)
             {
-                if (result.CustomActions.SiteCustomActions != null)
+                if (result.CustomActions.SiteCustomActions != null && template.CustomActions.SiteCustomActions != null)
                 {
                     result.CustomActions.SiteCustomActions.AddRange(
                         from customAction in template.CustomActions.SiteCustomActions
@@ -446,7 +537,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
                             Url = customAction.Url,
                         });
                 }
-                if (result.CustomActions.WebCustomActions != null)
+                if (result.CustomActions.WebCustomActions != null && template.CustomActions.WebCustomActions != null)
                 {
                     result.CustomActions.WebCustomActions.AddRange(
                         from customAction in template.CustomActions.WebCustomActions
@@ -551,6 +642,28 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
             return (doc.IsValidSharePointProvisioningTemplate());
         }
 
+        public static String ToXmlString(this ProvisioningTemplate template)
+        {
+            XmlSerializerNamespaces ns =
+                new XmlSerializerNamespaces();
+            ns.Add(XMLConstants.PROVISIONING_SCHEMA_PREFIX,
+                XMLConstants.PROVISIONING_SCHEMA_NAMESPACE);
+
+            String xml = XMLSerializer.Serialize<SharePointProvisioningTemplate>(template.ToXml(), ns);
+            return (xml);
+        }
+
+        public static Stream ToXmlStream(this ProvisioningTemplate template)
+        {
+            XmlSerializerNamespaces ns =
+                new XmlSerializerNamespaces();
+            ns.Add(XMLConstants.PROVISIONING_SCHEMA_PREFIX,
+                XMLConstants.PROVISIONING_SCHEMA_NAMESPACE);
+
+            Stream stream = XMLSerializer.SerializeToStream<SharePointProvisioningTemplate>(template.ToXml(), ns);
+            return (stream);
+        }
+
         #region Private extension methods for handling XML content
 
         /// <summary>
@@ -595,7 +708,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
         /// <summary>
         /// Private extension method to convert a String into an XElement
         /// </summary>
-        /// <param name="element">The String to convert</param>
+        /// <param name="xml"></param>
         /// <returns>The converted XElement</returns>
         private static XElement ToXElement(this String xml)
         {
@@ -611,7 +724,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
         /// <summary>
         /// Private extension method to convert a String into an XmlElement
         /// </summary>
-        /// <param name="element">The String to convert</param>
+        /// <param name="xml"></param>
         /// <returns>The converted XmlElement</returns>
         private static XmlElement ToXmlElement(this String xml)
         {
@@ -627,7 +740,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml
         /// <summary>
         /// Private extension method to convert a String into an XmlNode
         /// </summary>
-        /// <param name="element">The String to convert</param>
+        /// <param name="xml"></param>
         /// <returns>The converted XmlNode</returns>
         private static XmlNode ToXmlNode(this String xml)
         {

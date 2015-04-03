@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace OfficeDevPnP.Core.Framework.Provisioning.Model
 {
@@ -54,6 +50,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Model
             get { return _additionalVisitors; }
             private set { _additionalVisitors = value; }
         }
+
         #endregion
     }
 }

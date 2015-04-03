@@ -16,6 +16,7 @@
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -227,10 +228,23 @@
     <Compile Include="AppModelExtensions\Tenant15ExtensionsTests.cs" />
     <Compile Include="AppModelExtensions\TenantExtensionsTests.cs" />
     <Compile Include="AppModelExtensions\NavigationExtensionsTests.cs" />
-    <Compile Include="Framework\Connectors\ConnectorTests.cs" />
+    <Compile Include="Framework\Connectors\ConnectorAzureTests.cs" />
+    <Compile Include="Framework\Connectors\ConnectorFileSystemTests.cs" />
+    <Compile Include="Framework\Connectors\ConnectorSharePointTests.cs" />
     <Compile Include="Framework\ExtensibilityCallOut\ExtensibilityTestConstants.cs" />
     <Compile Include="Framework\ExtensibilityCallOut\ExtensibilityMockProvider.cs" />
     <Compile Include="Framework\ExtensibilityCallOut\ExtensibilityTests.cs" />
+    <Compile Include="Framework\ObjectHandlers\ObjectComposedLookTests.cs" />
+    <Compile Include="Framework\ObjectHandlers\ObjectSiteSecurityTests.cs" />
+    <Compile Include="Framework\ObjectHandlers\ObjectPropertyBagEntryTests.cs" />
+    <Compile Include="Framework\ObjectHandlers\ObjectListInstanceTests.cs" />
+    <Compile Include="Framework\ObjectHandlers\ObjectFilesTests.cs" />
+    <Compile Include="Framework\ObjectHandlers\ObjectFeaturesTests.cs" />
+    <Compile Include="Framework\ObjectHandlers\ObjectCustomActionsTests.cs" />
+    <Compile Include="Framework\ObjectHandlers\ObjectFieldTests.cs" />
+    <Compile Include="Framework\ObjectHandlers\ObjectContentTypeTests.cs" />
+    <Compile Include="Framework\ObjectHandlers\TokenParserTests.cs" />
+    <Compile Include="Framework\Providers\BaseTemplateTests.cs" />
     <Compile Include="Framework\Providers\XMLProvidersTests.cs" />
     <Compile Include="Framework\ProvisioningTemplates\DomainModelTests.cs" />
     <Compile Include="Utilities\JsonUtilityTests.cs" />
@@ -259,7 +273,16 @@
     <None Include="Resources\custom.spcolor">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Resources\garagewhite.spcolor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\HelloWorldApp.app" />
+    <Content Include="Resources\garagebg.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\garagelogo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\GuidTermSet.csv" />
     <Content Include="Resources\ImportTermSet.csv" />
     <None Include="Resources\HelloWorldApp15.app" />

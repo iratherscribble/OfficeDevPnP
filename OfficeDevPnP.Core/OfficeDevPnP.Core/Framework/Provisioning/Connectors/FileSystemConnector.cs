@@ -1,10 +1,8 @@
-﻿using OfficeDevPnP.Core.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using OfficeDevPnP.Core.Utilities;
 
 namespace OfficeDevPnP.Core.Framework.Provisioning.Connectors
 {
@@ -120,7 +118,7 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Connectors
                     return null;
                 }
 
-                result = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+                result = Encoding.UTF8.GetString(stream.ToArray());
             }
             finally
             {
@@ -201,7 +199,10 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Connectors
             {
                 string filePath = ConstructPath(fileName, container);
 
-                using(var fileStream = System.IO.File.Create(filePath))
+                // Ensure the target path exists
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+
+                using(var fileStream = File.Create(filePath))
                 {
                     stream.Seek(0, SeekOrigin.Begin);
                     stream.CopyTo(fileStream);
@@ -246,9 +247,9 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Connectors
             {
                 string filePath = ConstructPath(fileName, container);
 
-                if (System.IO.File.Exists(filePath))
+                if (File.Exists(filePath))
                 {
-                    System.IO.File.Delete(filePath);
+                    File.Delete(filePath);
                     Log.Info(Constants.LOGGING_SOURCE, CoreResources.Provisioning_Connectors_FileSystem_FileDeleted, fileName, container);
                 }
                 else

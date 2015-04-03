@@ -721,6 +721,28 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2015/03/ProvisioningSchema")]
+    public partial class FieldRef {
+        
+        private string idField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.18020")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2015/03/ProvisioningSchema")]
     public partial class ContentTypeBinding {
         
         private string contentTypeIDField;
@@ -766,6 +788,10 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml {
         private ContentTypeBinding[] contentTypeBindingsField;
         
         private ListInstanceViews viewsField;
+        
+        private ListInstanceFields fieldsField;
+        
+        private FieldRef[] fieldRefsField;
         
         private string titleField;
         
@@ -821,6 +847,27 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml {
             }
             set {
                 this.viewsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ListInstanceFields Fields {
+            get {
+                return this.fieldsField;
+            }
+            set {
+                this.fieldsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public FieldRef[] FieldRefs {
+            get {
+                return this.fieldRefsField;
+            }
+            set {
+                this.fieldRefsField = value;
             }
         }
         
@@ -991,6 +1038,28 @@ namespace OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://schemas.dev.office.com/PnP/2015/03/ProvisioningSchema")]
     public partial class ListInstanceViews {
+        
+        private System.Xml.XmlElement[] anyField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAnyElementAttribute()]
+        public System.Xml.XmlElement[] Any {
+            get {
+                return this.anyField;
+            }
+            set {
+                this.anyField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.18020")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://schemas.dev.office.com/PnP/2015/03/ProvisioningSchema")]
+    public partial class ListInstanceFields {
         
         private System.Xml.XmlElement[] anyField;
         
